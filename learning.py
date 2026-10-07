@@ -10,5 +10,7 @@ except ValueError:
     print("Please enter valid numbers.")
 except ZeroDivisionError:
     print("Quantity can't be zero.")
+except Exception as e:
+    print(f"Something unexpected happened: {e}")
 finally:
     print("Calculation attempt finished.")
