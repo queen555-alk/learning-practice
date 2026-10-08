@@ -6,6 +6,7 @@ resources = [
 ]
 
 fellows = {"F001": "Ada", "F002": "John", "F003": "Grace"}
+borrow_records = []
 
 def list_resources():
     for resource in resources:
@@ -38,8 +39,23 @@ def borrow(fellow_id, resource_id, quantity):
     if resource is None:
         print("Error: resources id not found")
         return
-    print("OK")
+    
+    if quantity <= 0:
+        print("Error: quantity must be more than zero")
+        return
+    if quantity > resource["available"]:
+        print("Error: only", resource["available"], resource["name"], "available")
+        return
 
-borrow("F009", "R001", 2)
-borrow("F001", "R999", 2)
-borrow("F001", "R001", 2)
+    resource["available"] = resource["available"] - quantity
+    borrow_records.append({"fellow_id": fellow_id, "resource_id": resource_id,
+                           "borrowed": quantity, "returned": 0})
+    print(fellows[fellow_id], "borrowed", quantity, resource["name"])
+
+def units_on_loan(fellow_id, resource_id):
+    count = 0
+    for record in borrow_records:
+        if record["fellow_id"] == fellow_id and record["resource_id"] == resource_id:
+            count = count + record["borrowed"] - record["returned"]
+    return count
+
