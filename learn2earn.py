@@ -5,6 +5,8 @@ resources = [
   {"id": "R003", "name": "Headset", "category": "Accessories", "total": 3, "available": 3}
 ]
 
+def list_resources():
+    for resource in resources:
+        print(resource["id"],resource["total"],resource["available"],resource["name"], resource["category"])
 
-for resource in resources:
-    print(resource["name"], resource["category"])
+list_resources()
