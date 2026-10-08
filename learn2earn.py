@@ -5,6 +5,8 @@ resources = [
   {"id": "R003", "name": "Headset", "category": "Accessories", "total": 3, "available": 3}
 ]
 
+fellows = {"F001": "Ada", "F002": "John", "F003": "Grace"}
+
 def list_resources():
     for resource in resources:
         print(resource["id"],resource["total"],resource["available"],resource["name"], resource["category"])
@@ -27,3 +29,17 @@ def add_resource(resource_id, name, category, total):
 add_resource("R004", "Mouse", "Accessories", 8)
 add_resource("R001", "Another", "Test", 5)
 list_resources()
+
+def borrow(fellow_id, resource_id, quantity):
+    if fellow_id not in fellows:
+        print("Error: fellow id not found")
+        return
+    resource = find_resource(resource_id)
+    if resource is None:
+        print("Error: resources id not found")
+        return
+    print("OK")
+
+borrow("F009", "R001", 2)
+borrow("F001", "R999", 2)
+borrow("F001", "R001", 2)
