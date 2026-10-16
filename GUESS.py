@@ -15,10 +15,4 @@ while True:
     guess = int(answer)
     tries += 1
 
-    if guess < secret:
-        print("Too low!")
-    elif guess > secret:
-        print("Too high!")
-    else:
-        print(f"You got it in {tries} tries!")
-        break
+    if
