@@ -1,5 +1,7 @@
 import random
 
+secret = random.randint(1, 20)
+tries = 0
 
 print("I'm thinking of a number between 1 and 20.")
 
@@ -13,4 +15,10 @@ while True:
     guess = int(answer)
     tries += 1
 
-    if
+    if guess < secret:
+        print("Too low!")
+    elif guess > secret:
+        print("Too high!")
+    else:
+        print(f"You got it in {tries} tries!")
+        break
