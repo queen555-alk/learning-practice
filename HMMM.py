@@ -1,11 +1,4 @@
-"""A tiny TF-IDF search engine built with only the Python standard library.
 
-Search your own notes (.txt / .md files) or a built-in set of sample documents.
-
-    python3 tfidf_search.py "how do neural networks learn"
-    python3 tfidf_search.py --dir ./my_notes "gradient descent"
-    python3 tfidf_search.py
-"""
 
 import argparse
 import math
@@ -66,3 +59,97 @@ def load_docs(folder: Path) -> dict[str, str]:
             docs[str(path.relative_to(folder))] = path.read_text(encoding="utf-8", errors="ignore")
     return docs
 
+
+def _norm(vector: dict[str, float]) -> float:
+    return math.sqrt(sum(v * v for v in vector.values()))
+
+
+class Index:
+    """Builds TF-IDF vectors for documents and ranks them against a query."""
+
+    def __init__(self, docs: dict[str, str]):
+        self.docs = docs
+        tokenized = {name: tokenize(text) for name, text in docs.items()}
+
+        doc_freq = Counter()
+        for tokens in tokenized.values():
+            doc_freq.update(set(tokens))
+
+        n = len(docs)
+        self.idf = {w: math.log((1 + n) / (1 + c)) + 1 for w, c in doc_freq.items()}
+
+        self.vectors = {}
+        for name, tokens in tokenized.items():
+            counts = Counter(tokens)
+            total = len(tokens) or 1
+            self.vectors[name] = {w: (c / total) * self.idf[w] for w, c in counts.items()}
+
+    def search(self, query: str, top_k: int = 3) -> list[tuple[float, str]]:
+        """Return up to top_k (score, document name) pairs, best first."""
+        counts = Counter(w for w in tokenize(query) if w in self.idf)
+        if not counts:
+            return []
+
+        total = sum(counts.values())
+        q_vec = {w: (c / total) * self.idf[w] for w, c in counts.items()}
+        q_norm = _norm(q_vec)
+
+        results = []
+        for name, d_vec in self.vectors.items():
+            dot = sum(weight * d_vec.get(word, 0.0) for word, weight in q_vec.items())
+            d_norm = _norm(d_vec)
+            if dot > 0 and d_norm > 0:
+                results.append((dot / (q_norm * d_norm), name))
+
+        results.sort(reverse=True)
+        return results[:top_k]
+
+
+def show_results(index: Index, query: str, top_k: int) -> None:
+    results = index.search(query, top_k)
+    if not results:
+        print("No matches. Try different words.\n")
+        return
+    for rank, (score, name) in enumerate(results, start=1):
+        preview = " ".join(index.docs[name].split())[:90]
+        print(f"{rank}. {name}  (score {score:.3f})")
+        print(f"   {preview}...")
+    print()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Tiny TF-IDF search engine.")
+    parser.add_argument("query", nargs="*", help="what to search for (omit for interactive mode)")
+    parser.add_argument("--dir", type=Path, help="folder of .txt/.md files to search")
+    parser.add_argument("--top", type=int, default=3, help="number of results to show")
+    args = parser.parse_args()
+
+    if args.dir:
+        docs = load_docs(args.dir)
+        if not docs:
+            raise SystemExit(f"No .txt or .md files found in {args.dir}")
+    else:
+        docs = SAMPLE_DOCS
+
+    index = Index(docs)
+    print(f"Indexed {len(docs)} documents.\n")
+
+    if args.query:
+        show_results(index, " ".join(args.query), args.top)
+        return
+
+    print("Type a search (or 'quit' to exit).")
+    while True:
+        try:
+            query = input("search > ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            break
+        if query.lower() in {"quit", "exit", "q"}:
+            break
+        if query:
+            show_results(index, query, args.top)
+
+
+if __name__ == "__main__":
+    main()
