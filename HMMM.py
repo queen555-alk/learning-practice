@@ -1,4 +1,11 @@
+"""A tiny TF-IDF search engine built with only the Python standard library.
 
+Search your own notes (.txt / .md files) or a built-in set of sample documents.
+
+    python3 tfidf_search.py "how do neural networks learn"
+    python3 tfidf_search.py --dir ./my_notes "gradient descent"
+    python3 tfidf_search.py
+"""
 
 import argparse
 import math
