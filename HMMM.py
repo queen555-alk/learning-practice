@@ -71,28 +71,6 @@ def _norm(vector: dict[str, float]) -> float:
     return math.sqrt(sum(v * v for v in vector.values()))
 
 
-class Index:
-    """Builds TF-IDF vectors for documents and ranks them against a query."""
-
-    def __init__(self, docs: dict[str, str]):
-        self.docs = docs
-        tokenized = {name: tokenize(text) for name, text in docs.items()}
-
-        doc_freq = Counter()
-        for tokens in tokenized.values():
-            doc_freq.update(set(tokens))
-
-        n = len(docs)
-        self.idf = {w: math.log((1 + n) / (1 + c)) + 1 for w, c in doc_freq.items()}
-
-        self.vectors = {}
-        for name, tokens in tokenized.items():
-            counts = Counter(tokens)
-            total = len(tokens) or 1
-            self.vectors[name] = {w: (c / total) * self.idf[w] for w, c in counts.items()}
-
-    def search(self, query: str, top_k: int = 3) -> list[tuple[float, str]]:
-        """Return up to top_k (score, document name) pairs, best first."""
         counts = Counter(w for w in tokenize(query) if w in self.idf)
         if not counts:
             return []
