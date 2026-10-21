@@ -97,7 +97,7 @@ class Index:
         if not counts:
             return []
 
-        total = sum(counts.values())
+        
         q_vec = {w: (c / total) * self.idf[w] for w, c in counts.items()}
         q_norm = _norm(q_vec)
 
