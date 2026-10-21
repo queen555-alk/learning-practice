@@ -71,10 +71,6 @@ def _norm(vector: dict[str, float]) -> float:
     return math.sqrt(sum(v * v for v in vector.values()))
 
 
-class Index:
-    """Builds TF-IDF vectors for documents and ranks them against a query."""
-
-    def __init__(self, docs: dict[str, str]):
         self.docs = docs
         tokenized = {name: tokenize(text) for name, text in docs.items()}
 
@@ -97,7 +93,7 @@ class Index:
         if not counts:
             return []
 
-        
+        total = sum(counts.values())
         q_vec = {w: (c / total) * self.idf[w] for w, c in counts.items()}
         q_norm = _norm(q_vec)
 
