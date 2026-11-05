@@ -42,19 +42,3 @@ def claude_model(prompt: str) -> str:
     )
     return msg.content[0].text
 
-
-def run(model, cases):
-    passed = 0
-    for i, case in enumerate(cases, 1):
-        answer = model(case.prompt)
-        ok = case.expect.lower() in answer.lower()
-        passed += ok
-        print(f"[{'PASS' if ok else 'FAIL'}] case {i}: {case.prompt!r} -> {answer!r}")
-    rate = passed / len(cases) * 100
-    print(f"\n{passed}/{len(cases)} passed ({rate:.0f}%)")
-    return passed == len(cases)
-
-
-if __name__ == "__main__":
-    model = claude_model if os.getenv("USE_CLAUDE") == "1" else mock_model
-    raise SystemExit(0 if run(model, CASES) else 1)
